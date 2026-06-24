@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Düzce Üniversitesi Tıp Fakültesi Öğrenci Bilgi Sistemi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --page-bg:    #e9ebf1;   /* light lavender-grey page background */
+      --card-bg:    #3a434f;   /* dark slate card */
+      --input-bg:   #2e3640;   /* darker slate inputs */
+      --input-text: #c7cdd6;
+      --placeholder:#8b939e;
+      --header-teal:#54c7a8;   /* mint/teal title */
+      --divider:    #4a525d;
+      --red:        #ef4d57;
+      --red-d:      #e23944;
+      --blue:       #3ca5e8;
+      --blue-d:     #2e93d6;
+      --navy:       #1c3a63;   /* logo navy */
+      --teal1:      #2f7d8f;   /* logo teal */
+      --teal2:      #69c6d2;   /* logo light teal */
+      --footer:     #6a7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Open Sans", "Segoe UI", Tahoma, sans-serif;
+      min-height: 100vh;
+      background: var(--page-bg);
+      color: #fff;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 60px 16px 40px;
+    }
+
+    .page-lock { width: 100%; max-width: 600px; }
+
+    /* ---------- Logo ---------- */
+    .page-logo { text-align: center; margin-bottom: 34px; }
+    .du-logo { display: inline-block; width: 200px; }
+    .du-logo img { display: block; width: 100%; height: auto; }
+
+    /* ---------- Card ---------- */
+    .page-body {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+
+    .lock-head {
+      text-align: center;
+      color: var(--header-teal);
+      font-size: 26px;
+      font-weight: 400;
+      padding: 26px 20px 8px;
+    }
+
+    .lock-body { padding: 26px 38px 30px; }
+
+    .form-group { margin-bottom: 18px; }
+    .form-control {
+      width: 100%;
+      height: 56px;
+      padding: 0 20px;
+      font-size: 17px;
+      color: var(--input-text);
+      background: var(--input-bg);
+      border: 1px solid #353d48;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-control::placeholder { color: var(--placeholder); }
+    .form-control:focus {
+      border-color: var(--header-teal);
+      box-shadow: 0 0 0 3px rgba(84,199,168,.18);
+    }
+
+    .btn-group-actions { display: flex; gap: 16px; margin-top: 6px; }
+    .btn {
+      flex: 1;
+      height: 52px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      text-decoration: none;
+      transition: background .15s, transform .05s;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn.red  { background: var(--red); }
+    .btn.red:hover  { background: var(--red-d); }
+    .btn.blue {
+      background: var(--blue);
+      gap: 7px;
+      font-size: 14px;
+      letter-spacing: .25px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .btn.blue i { flex: 0 0 auto; }
+    .btn.blue:hover { background: var(--blue-d); }
+
+    /* ---------- Error message ---------- */
+    .login-error {
+      display: none;
+      margin: 0 0 18px;
+      padding: 12px 16px;
+      background: rgba(239,77,87,.14);
+      border: 1px solid var(--red);
+      border-radius: 4px;
+      color: #ff9aa0;
+      font-size: 14px;
+      text-align: center;
+    }
+    .login-error.show { display: block; }
+
+    /* ---------- Mobile app section ---------- */
+    .mobile-app-section {
+      text-align: center;
+      border-top: 1px solid var(--divider);
+      margin: 4px 38px 0;
+      padding: 26px 0 34px;
+    }
+    .mobile-app-title {
+      font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 18px;
+    }
+    .app-download-buttons {
+      display: flex; gap: 14px; justify-content: center;
+    }
+    .store-btn {
+      display: inline-flex; align-items: center; gap: 11px;
+      background: #000; color: #fff;
+      text-decoration: none;
+      padding: 11px 20px; border-radius: 9px;
+      min-width: 175px;
+      border: 1px solid #2b2b2b;
+    }
+    .store-btn i { font-size: 32px; line-height: 1; }
+    .store-btn .label { text-align: left; line-height: 1.15; }
+    .store-btn .label small { display: block; font-size: 11px; opacity: .85; }
+    .store-btn .label b { font-size: 19px; font-weight: 600; letter-spacing: .3px; }
+
+    /* ---------- Footer ---------- */
+    .page-footer-custom {
+      text-align: center;
+      color: var(--footer);
+      font-size: 14px;
+      margin-top: 26px;
+    }
+    .page-footer-custom a { color: var(--footer); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="page-lock">
+
+    <!-- ===== Düzce Üniversitesi logo ===== -->
+    <div class="page-logo">
+      <a class="du-logo" href="/" aria-label="Düzce Üniversitesi">
+        <img src="duzce-logo.png" alt="Düzce Üniversitesi" />
+      </a>
+    </div>
+
+    <!-- ===== Card ===== -->
+    <div class="page-body">
+      <div class="lock-head">Tıp Fakültesi Öğrenci Bilgi Sistemi</div>
+
+      <div class="lock-body">
+        <form id="loginForm" action="#" method="post" role="form" class="lock-form" novalidate>
+          <div id="loginError" class="login-error">Kullanıcı adı veya şifre hatalı</div>
+          <div class="form-group">
+            <input class="form-control" id="Account_KullaniciAd" name="Account.KullaniciAd"
+                   placeholder="Kullanıcı Ad" type="text" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <input class="form-control" id="Account_Sifre" name="Account.Sifre"
+                   placeholder="Şifre" type="password" autocomplete="off" />
+          </div>
+          <div class="form-actions">
+            <div class="btn-group-actions">
+              <button type="submit" class="btn red">Giriş Yap</button>
+              <a href="#" class="btn blue"><i class="fa fa-qrcode"></i> Karekod Giriş</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="mobile-app-section">
+        <div class="mobile-app-title">Mobil Uygulamamızı İndirin</div>
+        <div class="app-download-buttons">
+          <a href="#" class="store-btn" target="_blank">
+            <i class="fa-brands fa-apple"></i>
+            <span class="label"><small>Download on the</small><b>App Store</b></span>
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=tr.edu.duzce.tipmobil"
+             class="store-btn" target="_blank">
+            <i class="fa-brands fa-google-play"></i>
+            <span class="label"><small>İNDİRİN</small><b>Google Play</b></span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer-custom">
+      2026 <a href="#">&copy;</a> Düzce Üniversitesi
+    </div>
+
+  </div>
+
+  <script>
+    var VALID_USER = "250601115";
+    var VALID_PASS = "147058Ben.";
+
+    var form  = document.getElementById("loginForm");
+    var errEl = document.getElementById("loginError");
+    var userEl = document.getElementById("Account_KullaniciAd");
+    var passEl = document.getElementById("Account_Sifre");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var u = userEl.value.trim();
+      var p = passEl.value;
+
+      if (u === VALID_USER && p === VALID_PASS) {
+        errEl.classList.remove("show");
+        // unlock the app
+        window.location.href = "app.html";
+      } else {
+        errEl.classList.add("show");
+        passEl.value = "";
+        passEl.focus();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Düzce Üniversitesi Tıp Fakültesi Öğrenci Bilgi Sistemi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root{
+      --header:#3a4055; --header2:#444b63; --page-bg:#e9ebf1; --ink:#33373d;
+      --muted:#8a929c; --teal:#28b6c4; --teal-soft:#bfe9ec; --blue:#3ca5e8;
+      --blue-link:#2f8fd4; --gold:#f4b51c; --red:#ef5350; --grade-bar:#7e57c2;
+      --info-blue:#dbe9fb; --line:#e3e6eb;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Open Sans",Tahoma,sans-serif;
+      background:var(--page-bg);color:var(--ink);min-height:100vh;}
+
+    /* ---------- Header ---------- */
+    .topbar{position:sticky;top:0;z-index:40;}
+    .topbar .row1{background:var(--header);display:flex;align-items:center;gap:14px;padding:14px 18px;}
+    .topbar .logo{width:46px;flex:0 0 46px;display:flex;align-items:center;justify-content:center;}
+    .topbar .logo img{width:100%;height:auto;display:block;}
+    .topbar .title{color:#fff;font-weight:700;font-size:15px;line-height:1.25;flex:1;}
+    .topbar .burger{background:none;border:none;color:#cfd4df;font-size:22px;cursor:pointer;padding:6px 8px;}
+    .topbar .row2{background:var(--header2);display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:14px 18px;}
+    .topbar .row2 .uname{color:#cdd2dc;font-size:15px;letter-spacing:.3px;}
+    .topbar .row2 .avatar{width:46px;height:46px;border-radius:50%;background:#7b8290;color:#fff;
+      display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .topbar .row2 .logout{color:#cdd2dc;font-size:21px;cursor:pointer;text-decoration:none;}
+
+    /* ---------- Drawer / Sidebar ---------- */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;visibility:hidden;transition:opacity .2s;}
+    .overlay.show{opacity:1;visibility:visible;}
+    .sidebar{position:fixed;top:0;right:0;height:100%;width:300px;max-width:85vw;background:#fff;z-index:60;
+      transform:translateX(100%);transition:transform .25s ease;overflow-y:auto;
+      box-shadow:-4px 0 24px rgba(0,0,0,.2);padding:22px 6px 40px;}
+    .sidebar.show{transform:translateX(0);}
+    .sidebar .grp{color:#5b9bd5;font-size:15px;font-weight:600;padding:18px 22px 8px;}
+    .sidebar a{display:flex;align-items:center;gap:16px;padding:14px 22px;color:#5a6573;font-size:18px;
+      text-decoration:none;border-radius:6px;}
+    .sidebar a i{width:24px;text-align:center;color:#9bb6d4;font-size:19px;}
+    .sidebar a:hover,.sidebar a.active{background:#eef4fb;color:#3f87cf;}
+    .sidebar a.active i{color:#3f87cf;}
+
+    /* ---------- Layout ---------- */
+    .layout{display:block;}
+    .content{padding:16px;max-width:560px;margin:0 auto;}
+    .page{display:none;}.page.active{display:block;}
+
+    .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px;margin-bottom:18px;}
+    .page-title{display:flex;align-items:flex-start;gap:12px;font-weight:800;font-size:21px;line-height:1.2;color:#2f3338;}
+    .page-title .fa-share-nodes{color:#3a4055;font-size:19px;margin-top:3px;}
+    .hr{height:1px;background:var(--line);margin:16px 0 4px;}
+    .meta-line{color:#3a3f45;font-size:18px;line-height:1.4;margin:18px 2px;}
+    .aktif{text-align:right;color:#3a3f45;font-size:18px;margin:18px 2px;}
+    .info-box{border-radius:6px;padding:18px 20px;font-size:18px;margin-bottom:16px;}
+    .info-blue{background:var(--info-blue);color:#4a76b8;}
+    .info-teal{background:var(--teal-soft);color:#2c8c97;line-height:1.4;}
+
+    /* feature cards */
+    .features{display:block;}
+    .feature{background:#fff;border:1px solid var(--line);border-radius:8px;padding:22px 22px 18px;
+      margin-bottom:18px;position:relative;cursor:pointer;}
+    .feature .big{font-size:32px;font-weight:400;line-height:1.05;}
+    .feature .sub{color:#9aa1ab;font-size:15px;font-weight:700;letter-spacing:.4px;margin-top:6px;}
+    .feature .uline{height:3px;border-radius:2px;margin:16px 0 12px;}
+    .feature .cap{color:#9aa1ab;font-size:14px;letter-spacing:.4px;text-transform:uppercase;display:flex;justify-content:space-between;}
+    .feature .fic{position:absolute;top:22px;right:22px;font-size:28px;color:#c7ccd3;}
+    .feature.teal .big{color:var(--teal);} .feature.teal .uline{background:var(--teal);}
+    .feature.gold .big{color:var(--gold);} .feature.gold .uline{background:var(--gold);}
+    .feature.red  .big{color:var(--red);}  .feature.red  .uline{background:var(--red);}
+
+    /* portlets */
+    .portlet{border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:18px;background:#fff;}
+    .portlet>.head{display:flex;align-items:center;gap:10px;color:#fff;padding:16px 18px;font-size:21px;}
+    .portlet>.head .ic{font-size:16px;opacity:.9;} .portlet>.head .sp{flex:1;}
+    .portlet>.head .ctrl{display:flex;gap:16px;font-size:18px;opacity:.92;}
+    .portlet.purple>.head{background:#9050b5;} .portlet.purple{border-color:#9050b5;}
+    .portlet.red>.head{background:#ef5350;}    .portlet.red{border-color:#ef5350;}
+    .portlet.teal>.head{background:#26c6d6;}   .portlet.teal{border-color:#26c6d6;}
+    .portlet.blue>.head{background:#3ca5e8;}   .portlet.blue{border-color:#3ca5e8;}
+    .portlet>.body{padding:16px;}
+
+    table.grid{width:100%;border-collapse:collapse;font-size:17px;}
+    table.grid th,table.grid td{border:1px solid #e7eaee;padding:14px 14px;text-align:left;vertical-align:middle;}
+    table.grid th{font-weight:700;color:#2f3338;}
+    .btn-donem{background:#3d7ec0;color:#fff;border:none;border-radius:4px;padding:10px 14px;font-size:14px;
+      white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+
+    /* exam type table */
+    table.xt{width:100%;border-collapse:collapse;font-size:17px;}
+    table.xt th{font-weight:700;color:#2f3338;padding:14px 14px;border-bottom:2px solid #e7eaee;text-align:left;vertical-align:bottom;}
+    table.xt td{padding:16px 14px;border-bottom:1px solid #eef0f3;vertical-align:top;line-height:1.35;}
+    table.xt td.pick{color:#3a3f45;}
+    .btn-save{background:#34c1cf;color:#fff;border:none;border-radius:4px;padding:14px 26px;font-size:17px;cursor:pointer;}
+
+    /* student portlet */
+    .stu-card .photo{width:200px;max-width:60%;aspect-ratio:3/4;border:1px solid #d7dbe1;background:#eef0f3;
+      border-radius:3px;display:flex;align-items:center;justify-content:center;color:#aab0b8;font-size:64px;overflow:hidden;}
+    .stu-card .photo img{width:100%;height:100%;object-fit:cover;display:block;}
+    .stu-card dl{font-size:19px;line-height:1.4;margin-top:18px;}
+    .stu-card dt{font-weight:700;color:#2f3338;margin-top:14px;}
+    .stu-card dd{color:#3a3f45;}
+    .btn-doc{display:inline-flex;flex-direction:column;align-items:center;gap:8px;border:1px solid #cfd4da;
+      border-radius:4px;background:#fafbfc;color:#5a6066;padding:16px 22px;margin-top:18px;font-size:15px;cursor:pointer;}
+    .btn-doc i{font-size:20px;}
+
+    .field label{display:block;font-size:18px;color:#3a3f45;margin-bottom:8px;}
+    .field select{width:100%;max-width:360px;height:54px;border:1px solid #cfd4da;border-radius:4px;padding:0 14px;
+      font-size:18px;color:#3a3f45;background:#fff;}
+    .btn-list{height:54px;background:#3d7ec0;color:#fff;border:none;border-radius:4px;font-size:18px;margin-top:16px;
+      cursor:pointer;width:100%;max-width:360px;}
+    .warn-box{background:#fcefc7;color:#9a7b1e;border-radius:6px;padding:18px 20px;font-size:18px;font-weight:700;margin-bottom:18px;}
+
+    /* alınan dersler */
+    .al-head{background:#f7d774;color:#8a6d12;border-radius:6px;padding:16px 20px;font-size:21px;margin-bottom:16px;}
+    .course{background:#fffdf3;border:1px solid #efe7cf;border-radius:8px;padding:20px;margin-bottom:20px;position:relative;}
+    .course .caret{position:absolute;top:16px;right:18px;color:#b9bcc2;font-size:18px;}
+    .course .code{color:#2f8fd4;font-weight:700;font-size:19px;line-height:1.3;}
+    .course .lect{color:#aeb3ba;font-size:18px;margin-top:2px;}
+    .course .cline{height:1px;background:#e9eaec;margin:14px 0;}
+    .course .gl{display:flex;justify-content:space-between;align-items:baseline;}
+    .course .gl .lab{color:#9b59b6;font-size:22px;} .course .gl .val{font-size:21px;color:#33373d;}
+    .bar{height:8px;background:#eceef0;border-radius:5px;margin:12px 0 16px;overflow:hidden;}
+    .bar>span{display:block;height:100%;background:var(--grade-bar);border-radius:5px;}
+    .kurul{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #ececec;padding:14px 0;}
+    .kurul:last-of-type{border-bottom:none;}
+    .kurul .kn{font-size:17px;font-weight:700;color:#2f3338;line-height:1.3;}
+    .kurul .badge{background:#34c1cf;color:#fff;border-radius:5px;min-width:58px;text-align:center;padding:12px 10px;font-size:18px;}
+    .srow{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:12px 0;}
+    .srow .l{font-size:18px;color:#3a3f45;line-height:1.35;}
+    .srow .r{text-align:right;font-size:18px;white-space:nowrap;} .srow .r b{display:block;} .srow .r .date{color:#3a3f45;font-weight:400;}
+    .summ{display:flex;justify-content:space-between;padding:10px 0;font-size:18px;color:#3a3f45;}
+
+    .att-head{background:#3d86c6;color:#fff;text-align:center;font-size:20px;font-weight:700;padding:18px;border-radius:4px;margin-bottom:2px;}
+    .att-row{border:1px solid #eaedf1;border-top:none;padding:16px 18px;}
+    .att-row:nth-child(odd){background:#f7f8fa;}
+    .att-row .t{font-weight:700;font-size:18px;color:#2f3338;} .att-row .s{color:#9aa1ab;font-size:16px;margin-top:3px;}
+    .footer{text-align:center;color:#9aa1ab;font-size:14px;padding:18px;}
+
+    /* ===================== DESKTOP ===================== */
+    @media(min-width:992px){
+      .topbar{display:flex;align-items:stretch;}
+      .topbar .row1{flex:1;}
+      .topbar .row2{background:var(--header);padding-right:30px;}
+
+      .overlay{display:none!important;}
+      .sidebar{position:static;transform:none;width:250px;flex:0 0 250px;height:auto;box-shadow:none;
+        border:1px solid var(--line);border-radius:8px;padding:14px 8px 24px;align-self:flex-start;}
+
+      .layout{display:flex;gap:22px;max-width:1500px;margin:0 auto;padding:22px;align-items:flex-start;}
+      .content{flex:1;min-width:0;max-width:none;margin:0;padding:0;}
+
+      .features{display:flex;gap:18px;}
+      .features .feature{flex:1;margin-bottom:0;}
+
+      .aktif{font-size:17px;}
+
+      .stu-card{display:flex;gap:36px;align-items:flex-start;}
+      .stu-card .stu-left{flex:0 0 auto;}
+      .stu-card .photo{width:230px;max-width:none;}
+      .stu-card dl{margin-top:0;display:grid;grid-template-columns:auto 1fr;column-gap:24px;row-gap:7px;align-content:start;flex:1;}
+      .stu-card dt{margin-top:0;text-align:right;}
+      .btn-doc{margin-top:18px;}
+
+      .course .srow .r{min-width:120px;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== Header ========== -->
+  <header class="topbar">
+    <div class="row1">
+      <span class="logo"><img src="duzce-logo.png" alt="DÜ" /></span>
+      <div class="title">Düzce Üniversitesi Tıp Fakültesi<br/>Öğrenci Bilgi Sistemi</div>
+      <button class="burger" id="burger" aria-label="Menü"><i class="fa-solid fa-bars"></i></button>
+    </div>
+    <div class="row2">
+      <span class="uname">BAHRİ ŞAHİN</span>
+      <span class="avatar"><i class="fa-solid fa-user"></i></span>
+      <a class="logout" href="index.html" title="Çıkış"><i class="fa-solid fa-right-from-bracket"></i></a>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="layout">
+    <!-- ========== Sidebar ========== -->
+    <nav class="sidebar" id="sidebar">
+      <div class="grp">ANA MENÜ</div>
+      <a href="#" data-page="anasayfa"><i class="fa-solid fa-house"></i> Anasayfa</a>
+      <a href="#" data-page="dosya"><i class="fa-solid fa-cloud-arrow-up"></i> Ders Dosya Dokuman</a>
+      <div class="grp">ÖĞRENCİ</div>
+      <a href="#" data-page="sinavtipi"><i class="fa-solid fa-file-lines"></i> Sınav Tipi</a>
+      <a href="#" data-page="egitimtipi"><i class="fa-solid fa-graduation-cap"></i> Eğitim Tipi Seçimi</a>
+      <a href="#" data-page="sonuclar"><i class="fa-solid fa-chart-column"></i> Sınav Sonuçları</a>
+      <a href="#" data-page="notdokumu"><i class="fa-regular fa-file-lines"></i> Not Dökümü Belgesi</a>
+      <a href="#" data-page="dersecimi"><i class="fa-regular fa-square-check"></i> Ders Seçimi</a>
+      <a href="#" data-page="dersprogrami"><i class="fa-solid fa-table-cells"></i> Ders Programı</a>
+      <a href="#" data-page="yoklama"><i class="fa-solid fa-certificate"></i> Yoklama Durumu</a>
+    </nav>
+
+    <main class="content">
+
+      <!-- ===== ANASAYFA ===== -->
+      <section class="page active" id="page-anasayfa">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i>
+            <span>DÜZCE ÜNİVERSİTESİ TIP FAKÜLTESİ ÖĞRENCİ BİLGİ SİSTEMİ</span></div>
+          <div class="hr"></div>
+          <div class="aktif">Aktif Yıl:2025 - 2026 / Aktif Ders Seçimi Yılı:2026-2027</div>
+          <div class="info-box info-blue">Harç borcu yoktur.</div>
+          <div class="info-box info-teal">Akademik Danışmanınız : Dr. Öğr. Üyesi Derya ERDOĞAN</div>
+
+          <div class="features">
+            <div class="feature teal" data-page="dosya">
+              <i class="fa-regular fa-file fic"></i>
+              <div class="big">Ders Materyalleri</div>
+              <div class="sub">DERS DOSYA DÖKÜMANLARI</div>
+              <div class="uline"></div>
+              <div class="cap"><span>DÖÜMAN DOSYA PAYLAŞIMLARI</span></div>
+            </div>
+            <div class="feature gold" data-page="odev">
+              <i class="fa-regular fa-user fic"></i>
+              <div class="big">Ödev</div>
+              <div class="sub">ÖDEV YÜKLEME İŞLEMLERİ</div>
+              <div class="uline"></div>
+              <div class="cap"><span>ÖDEV-DÖKÜMAN TOPLAMA</span><span>-</span></div>
+            </div>
+            <div class="feature red" data-page="sonuclar">
+              <i class="fa-regular fa-pen-to-square fic"></i>
+              <div class="big">Sınav Sonuç</div>
+              <div class="sub">DEĞERLENDİRME SONUÇLARI</div>
+              <div class="uline"></div>
+              <div class="cap"><span>ÖĞRENCİ SINAV SONUÇLARI</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== DERS DOSYA DOKUMAN ===== -->
+      <section class="page" id="page-dosya">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>DERS DOSYA DÖKÜMAN</span></div>
+          <div class="hr"></div>
+        </div>
+        <div class="portlet purple">
+          <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">2025 - 2026 Dönemleri</span>
+            <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="body" style="padding:14px;overflow-x:auto;">
+            <table class="grid">
+              <thead><tr><th>DonemAdi</th><th>Dönem Koorinatörü</th><th>Dönem Koordinatör Yrd.</th><th>Yil</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Dönem I</td><td>Dr. Öğr. Üyesi İlker KILIÇCIOĞLU</td><td>Dr. Öğr. Üyesi Özge BEYAZÇİÇEK</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+                <tr><td>Dönem II</td><td>Prof. Dr. Serdar ÇOLAKOĞLU</td><td>Prof. Dr. Serdar ÇOLAKOĞLU</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+                <tr><td>Dönem III</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+                <tr><td>Dönem IV</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+                <tr><td>Dönem V</td><td>Dr. Öğr. Üyesi Rumeysa SAMANCİ</td><td>Dr. Öğr. Üyesi Rumeysa SAMANCİ</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+                <tr><td>Dönem VI</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>Dr. Öğr. Üyesi BEKİR TUNCA</td><td>2025 - 2026</td><td><button class="btn-donem">Dönem Dersleri <i class="fa-solid fa-arrow-up-right-from-square"></i></button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ÖDEV ===== -->
+      <section class="page" id="page-odev">
+        <div class="portlet red">
+          <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">Ödevler [Toplam Ödev Sayısı:0]</span>
+            <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="body" style="min-height:48px;"></div>
+        </div>
+      </section>
+
+      <!-- ===== SINAV TİPİ ===== -->
+      <section class="page" id="page-sinavtipi">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>SİNAV TİPİ YÖNETİMİ</span></div>
+          <div class="hr"></div>
+        </div>
+        <div class="portlet red">
+          <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">Sınav Tipi Seçimi</span>
+            <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-wrench"></i>
+              <i class="fa-solid fa-arrows-rotate"></i><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="body" style="padding:0;overflow-x:auto;">
+            <table class="xt">
+              <thead><tr><th>Ders Adı</th><th>Son Secim Tarihi</th><th>Online</th><th>Yüzyüze</th></tr></thead>
+              <tbody id="xt-list"></tbody>
+            </table>
+            <div style="padding:16px;text-align:right;"><button class="btn-save">KAYDET</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EĞİTİM TİPİ ===== -->
+      <section class="page" id="page-egitimtipi">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>EĞİTİM TİPİ SEÇİMİ</span></div>
+          <div class="hr"></div>
+          <div class="meta-line" style="color:#9aa1ab;">Aktif eğitim tipi seçimi bulunmamaktadır.</div>
+        </div>
+      </section>
+
+      <!-- ===== SINAV SONUÇLARI ===== -->
+      <section class="page" id="page-sonuclar">
+        <div class="portlet blue">
+          <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">Öğrenci Bilgileri</span>
+            <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-arrows-rotate"></i><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="body stu-card">
+            <div class="stu-left">
+              <div class="photo"><img src="student.jpg" alt="" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=&quot;fa-solid fa-user&quot;></i>';" /></div>
+              <button class="btn-doc" data-page="notdokumu"><i class="fa-solid fa-bars-staggered"></i>Not Dökümü</button>
+            </div>
+            <dl>
+              <dt>Öğrenci No</dt><dd>250601115</dd>
+              <dt>Ad</dt><dd>BAHRİ</dd>
+              <dt>Soyad</dt><dd>ŞAHİN</dd>
+              <dt>Kayit Tarihi</dt><dd>1.09.2025</dd>
+              <dt>Bölüm</dt><dd>Tıp</dd>
+              <dt>Sinif</dt><dd>1. Sınıf</dd>
+              <dt>Tc Kimlik</dt><dd>12401596266</dd>
+              <dt>Aktif Yil</dt><dd>2025 - 2026</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>ÖĞRENCİ SINAV SONUÇLARI</span></div>
+          <div class="hr"></div>
+          <div class="portlet teal" style="margin-top:16px;">
+            <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">Yıllar</span>
+              <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="body">
+              <div class="field"><label>YIL</label><select><option>2025 - 2026</option></select></div>
+              <button class="btn-list">Listele</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="al-head">Alınan Dersler</div>
+        <div id="courses"></div>
+      </section>
+
+      <!-- ===== NOT DÖKÜMÜ ===== -->
+      <section class="page" id="page-notdokumu">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>NOT DÖKÜMÜ BELGESİ</span></div>
+          <div class="hr"></div>
+          <div class="meta-line" style="color:#9aa1ab;">Not dökümü belgesi henüz oluşturulmamıştır.</div>
+        </div>
+      </section>
+
+      <!-- ===== DERS SEÇİMİ ===== -->
+      <section class="page" id="page-dersecimi">
+        <div class="warn-box">Ders seçme ekranı henüz aktif değildir.</div>
+        <div class="portlet blue">
+          <div class="head"><i class="fa-solid fa-gears ic"></i><span class="sp">Öğrenci Bilgileri</span>
+            <span class="ctrl"><i class="fa-solid fa-chevron-down"></i><i class="fa-solid fa-arrows-rotate"></i><i class="fa-solid fa-xmark"></i></span></div>
+          <div class="body stu-card">
+            <div class="stu-left">
+              <div class="photo"><img src="student.jpg" alt="" onerror="this.style.display='none';this.parentNode.innerHTML='<i class=&quot;fa-solid fa-user&quot;></i>';" /></div>
+            </div>
+            <dl>
+              <dt>Öğrenci No</dt><dd>250601115</dd>
+              <dt>Ad</dt><dd>BAHRİ</dd>
+              <dt>Soyad</dt><dd>ŞAHİN</dd>
+              <dt>Kayit Tarihi</dt><dd>1.09.2025</dd>
+              <dt>Bölüm</dt><dd>Tıp</dd>
+              <dt>Sinif</dt><dd>1. Sınıf</dd>
+              <dt>Tc Kimlik</dt><dd>12401596266</dd>
+              <dt>Aktif Yil</dt><dd>2025 - 2026</dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== DERS PROGRAMI ===== -->
+      <section class="page" id="page-dersprogrami">
+        <div class="card">
+          <div class="page-title"><i class="fa-solid fa-share-nodes"></i><span>DERS PROGRAMI</span></div>
+          <div class="hr"></div>
+          <div class="meta-line" style="color:#9aa1ab;">Yayınlanmış ders programı bulunmamaktadır.</div>
+        </div>
+      </section>
+
+      <!-- ===== YOKLAMA ===== -->
+      <section class="page" id="page-yoklama">
+        <div class="portlet blue">
+          <div class="head"><span class="sp">Kurul Yoklama Özeti</span></div>
+          <div class="body" style="padding:14px;">
+            <div class="att-head">Kurul / Ders</div>
+            <div id="att-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">2026 © Düzce Üniversitesi</div>
+    </main>
+  </div>
+
+  <script>
+    var burger=document.getElementById('burger'),sidebar=document.getElementById('sidebar'),overlay=document.getElementById('overlay');
+    function openMenu(){sidebar.classList.add('show');overlay.classList.add('show');}
+    function closeMenu(){sidebar.classList.remove('show');overlay.classList.remove('show');}
+    burger.onclick=function(){ sidebar.classList.contains('show')?closeMenu():openMenu(); };
+    overlay.onclick=closeMenu;
+
+    function goto(page){
+      document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+      var el=document.getElementById('page-'+page); if(el){el.classList.add('active');}
+      document.querySelectorAll('.sidebar a[data-page]').forEach(function(a){
+        a.classList.toggle('active',a.getAttribute('data-page')===page);
+      });
+      window.scrollTo(0,0); closeMenu();
+    }
+    document.querySelectorAll('[data-page]').forEach(function(a){
+      a.addEventListener('click',function(e){e.preventDefault();goto(this.getAttribute('data-page'));});
+    });
+
+    /* Sınav Tipi */
+    var xt=["Atatürk İlkeleri ve İnkılap Tarihi I","Atatürk İlkeleri ve İnkılap Tarihi II","İngilizce I","İngilizce II",
+      "Kariyer Planlama","Türk Dili I","Türk Dili II","Dönem I Meslek İçi Dersi","Hücre Bilimleri I Ders Kurulu",
+      "Hücre Bilimleri II Ders Kurulu","Hücre bilimleri III Ders Kurulu","İskelet ve Doku Sistemleri Ders Kurulu",
+      "Seçmeli Ders","Sağlıkta Sosyal Gönüllülük"];
+    document.getElementById('xt-list').innerHTML=xt.map(function(n){
+      return '<tr><td>'+n+'</td><td></td><td colspan="2" class="pick">Seçilen Sınav Tipi:</td></tr>';}).join('');
+
+    /* Yoklama */
+    var att=[["AİB 101 Atatürk İlkeleri ve İnkılap Tarihi I","Zorunlu Ders"],
+      ["AİB 102 Atatürk İlkeleri ve İnkılap Tarihi II","Zorunlu Ders"],["İNG 101 İngilizce I","Zorunlu Ders"],
+      ["İNG 102 İngilizce II","Zorunlu Ders"],["KRP102 Kariyer Planlama","Zorunlu Ders"],
+      ["TDB 121 B Türk Dili I","Zorunlu Ders"],["TDB 122 B Türk Dili II","Zorunlu Ders"],
+      ["TIP 100-1 Hücre Bilimleri I Ders Kurulu","Kurul"],["TIP 100-2 Hücre Bilimleri II Ders Kurulu","Kurul"],
+      ["TIP 100-3 Hücre bilimleri III Ders Kurulu","Kurul"],["TIP 100-4 İskelet ve Doku Sistemleri Ders Kurulu","Kurul"],
+      ["TS 113 Seçmeli Ders","Seçmeli Grubu Dersi"],["TS 130 Sağlıkta Sosyal Gönüllülük","Seçmeli Grubu Dersi"]];
+    document.getElementById('att-list').innerHTML=att.map(function(r){
+      return '<div class="att-row"><div class="t">'+r[0]+'</div><div class="s">'+r[1]+'</div></div>';}).join('');
+
+    /* Sınav Sonuçları */
+    function bar(p){return '<div class="bar"><span style="width:'+p+'%"></span></div>';}
+    function srow(l,b,d){return '<div class="srow"><div class="l">'+l+'</div><div class="r"><b>'+b+'</b><span class="date">'+(d||'')+'</span></div></div>';}
+    var courses=[
+      {code:'TIP 100 - Dönem I Meslek İçi Dersi',lect:'Dr. Öğr. Üyesi İlker KILIÇCIOĞLU',grade:'56,5 / FF',pct:56.5,
+       kurul:[['TIP 100-1 - Hücre Bilimleri I Ders Kurulu','61'],['TIP 100-2 - Hücre Bilimleri II Ders Kurulu','74'],
+              ['TIP 100-3 - Hücre bilimleri III Ders Kurulu','21'],['TIP 100-4 - İskelet ve Doku Sistemleri Ders Kurulu','70']],
+       summ:[['Kurul Ortalama / (%)','56,50'],['Dönem Sonu Sınavı / (% )','61']]},
+      {code:'AİB 101 - Atatürk İlkeleri ve İnkılap Tarihi I',lect:'Öğr. Gör. Tuğba AŞAN',grade:'28 / EKS',pct:28,
+       rows:[['Vize / Dönem İçi & Yarıyıl İçi (Ara Sınav) ( % 40,00 )','70','8.12.2025'],
+             ['Final / Dönem Sonu & Yarıyıl (Final) ( % 60,00 )','Girmedi','16.01.2026'],
+             ['Bütünleme / - ( % )','Girmedi','1.02.2026']]},
+      {code:'AİB 102 - Atatürk İlkeleri ve İnkılap Tarihi II',lect:'Öğr. Gör. Tuğba AŞAN',grade:'38 / FF',pct:38,
+       rows:[['Vize / Dönem İçi & Yarıyıl İçi (Ara Sınav) ( % 40,00 )','95','30.04.2026'],
+             ['Final / Dönem Sonu & Yarıyıl (Final) ( % 60,00 )','Girmedi','8.06.2026'],
+             ['Bütünleme / - ( % )','Girmedi','']]},
+      {code:'KRP102 - Kariyer Planlama',lect:'Dr. Öğr. Üyesi İlker KILIÇCIOĞLU',grade:'- /',pct:0,rows:[]},
+      {code:'TDB 121 B - Türk Dili I',lect:'Öğr. Gör. Ayşe ULU',grade:'16 / FF',pct:16,
+       rows:[['Vize / Dönem İçi & Yarıyıl İçi (Ara Sınav) ( % 40,00 )','40','3.12.2025'],
+             ['Final / Dönem Sonu & Yarıyıl (Final) ( % 60,00 )','Girmedi','14.01.2026'],
+             ['Bütünleme / - ( % )','-','']]},
+      {code:'TDB 122 B - Türk Dili II',lect:'Öğr. Gör. Aslıhan HAZNEDAROĞLU',grade:'93 / AA',pct:93,
+       rows:[['Vize / Dönem İçi & Yarıyıl İçi (Ara Sınav) ( % 40,00 )','90','10.04.2026'],
+             ['Final / Dönem Sonu & Yarıyıl (Final) ( % 60,00 )','95','9.06.2026']]},
+      {code:'TS 130 - Sağlıkta Sosyal Gönüllülük',lect:'Prof. Dr. Şükrü ÖKSÜZ',grade:'- /',pct:0,
+       rows:[['Final / Dönem Sonu & Yarıyıl (Final) ( % 100,00 )','90','12.02.2026']]}
+    ];
+    document.getElementById('courses').innerHTML=courses.map(function(c){
+      var inner='';
+      if(c.kurul){
+        inner+=c.kurul.map(function(k){return '<div class="kurul"><div class="kn">'+k[0]+'</div><div class="badge">'+k[1]+'</div></div>';}).join('');
+        inner+='<div class="cline" style="margin-top:18px"></div>';
+        inner+=c.summ.map(function(s){return '<div class="summ"><span>'+s[0]+'</span><span>'+s[1]+'</span></div>';}).join('');
+      } else if(c.rows){ inner+=c.rows.map(function(r){return srow(r[0],r[1],r[2]);}).join(''); }
+      return '<div class="course"><i class="fa-solid fa-chevron-down caret"></i>'+
+        '<div class="code">'+c.code+'</div><div class="lect">'+c.lect+'</div><div class="cline"></div>'+
+        '<div class="gl"><span class="lab">Geçme Notu / Harf notu</span><span class="val">'+c.grade+'</span></div>'+
+        bar(c.pct)+inner+'</div>';
+    }).join('');
+
+    goto('anasayfa');
+  </script>
+</body>
+</html>
