@@ -1,0 +1,31 @@
+{
+  "name": "Düzce Üniversitesi Tıp Fakültesi Öğrenci Bilgi Sistemi",
+  "short_name": "Düzce OBS",
+  "description": "Düzce Üniversitesi Tıp Fakültesi Öğrenci Bilgi Sistemi",
+  "lang": "tr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#e9ebf1",
+  "theme_color": "#1c3a63",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
